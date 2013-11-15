@@ -17,7 +17,7 @@ describe Koala::HTTPService do
 
   describe "DEFAULT_MIDDLEWARE" do
     before :each do
-      @builder = double("Faraday connection builder")
+      @builder = stub("Faraday connection builder")
       @builder.stub(:request)
       @builder.stub(:adapter)
       @builder.stub(:use)
@@ -173,11 +173,11 @@ describe Koala::HTTPService do
   describe ".make_request" do
     before :each do
       # Setup stubs for make_request to execute without exceptions
-      @mock_body = double('Typhoeus response body')
-      @mock_headers_hash = double({:value => "headers hash"})
-      @mock_http_response = double("Faraday Response", :status => 200, :headers => @mock_headers_hash, :body => @mock_body)
+      @mock_body = stub('Typhoeus response body')
+      @mock_headers_hash = stub({:value => "headers hash"})
+      @mock_http_response = stub("Faraday Response", :status => 200, :headers => @mock_headers_hash, :body => @mock_body)
 
-      @mock_connection = double("Faraday connection")
+      @mock_connection = stub("Faraday connection")
       @mock_connection.stub(:get).and_return(@mock_http_response)
       @mock_connection.stub(:post).and_return(@mock_http_response)
       Faraday.stub(:new).and_return(@mock_connection)
@@ -192,28 +192,21 @@ describe Koala::HTTPService do
       end
 
       it "merges Koala::HTTPService.http_options into the request params" do
-        http_options = {:proxy => "http://user:password@example.org/", :request => { :timeout => 3 }}
+        http_options = {:a => 2, :c => "3"}
         Koala::HTTPService.http_options = http_options
         Faraday.should_receive(:new).with(anything, hash_including(http_options)).and_return(@mock_connection)
         Koala::HTTPService.make_request("anything", {}, "get")
       end
 
-      it "does not merge invalid Faraday options from Koala::HTTPService.http_options into the request params" do
-        http_options = {:invalid => "fake param"}
-        Koala::HTTPService.http_options = http_options
-        Faraday.should_receive(:new).with(anything, hash_not_including(http_options)).and_return(@mock_connection)
-        Koala::HTTPService.make_request("anything", {}, "get")
-      end
-
       it "merges any provided options into the request params" do
-        options = {:proxy => "http://user:password@example.org/", :request => { :timeout => 3 }}
+        options = {:a => 2, :c => "3"}
         Faraday.should_receive(:new).with(anything, hash_including(options)).and_return(@mock_connection)
         Koala::HTTPService.make_request("anything", {}, "get", options)
       end
 
       it "overrides Koala::HTTPService.http_options with any provided options for the request params" do
-        options = {:proxy => "http://user:password@proxy.org/", :request => { :timeout => 10 }}
-        http_options = {:proxy => "http://user:password@example.org/", :request => { :timeout => 3 }}
+        options = {:a => 2, :c => "3"}
+        http_options = {:a => :a}
         Koala::HTTPService.stub(:http_options).and_return(http_options)
 
         Faraday.should_receive(:new).with(anything, hash_including(http_options.merge(options))).and_return(@mock_connection)
@@ -223,7 +216,7 @@ describe Koala::HTTPService do
       it "forces use_ssl to true if an access token is present" do
         options = {:use_ssl => false}
         Koala::HTTPService.stub(:http_options).and_return(:use_ssl => false)
-        Faraday.should_receive(:new).with(anything, hash_including(:ssl => {:verify => true})).and_return(@mock_connection)
+        Faraday.should_receive(:new).with(anything, hash_including(:use_ssl => true, :ssl => {:verify => true})).and_return(@mock_connection)
         Koala::HTTPService.make_request("anything", {"access_token" => "foo"}, "get", options)
       end
 
@@ -319,7 +312,7 @@ describe Koala::HTTPService do
 
       it "turns any UploadableIOs to UploadIOs" do
         # technically this is done for all requests, but you don't send GET requests with files
-        upload_io = double("UploadIO")
+        upload_io = stub("UploadIO")
         u = Koala::UploadableIO.new("/path/to/stuff", "img/jpg")
         u.stub(:to_upload_io).and_return(upload_io)
         @mock_connection.should_receive(:post).with(anything, hash_including("source" => upload_io)).and_return(@mock_http_response)
@@ -440,11 +433,11 @@ describe Koala::HTTPService do
     describe "per-request options" do
       before :each do
         # Setup stubs for make_request to execute without exceptions
-        @mock_body = double('Typhoeus response body')
-        @mock_headers_hash = double({:value => "headers hash"})
-        @mock_http_response = double("Faraday Response", :status => 200, :headers => @mock_headers_hash, :body => @mock_body)
+        @mock_body = stub('Typhoeus response body')
+        @mock_headers_hash = stub({:value => "headers hash"})
+        @mock_http_response = stub("Faraday Response", :status => 200, :headers => @mock_headers_hash, :body => @mock_body)
 
-        @mock_connection = double("Faraday connection")
+        @mock_connection = stub("Faraday connection")
         @mock_connection.stub(:get).and_return(@mock_http_response)
         @mock_connection.stub(:post).and_return(@mock_http_response)
         Faraday.stub(:new).and_return(@mock_connection)
@@ -452,13 +445,13 @@ describe Koala::HTTPService do
 
       describe ":typhoeus_options" do
         it "merges any typhoeus_options into options" do
-          typhoeus_options = {:proxy => "http://user:password@example.org/" }
+          typhoeus_options = {:a => 2}
           Faraday.should_receive(:new).with(anything, hash_including(typhoeus_options)).and_return(@mock_connection)
           Koala::HTTPService.make_request("anything", {}, "get", :typhoeus_options => typhoeus_options)
         end
 
         it "deletes the typhoeus_options key" do
-          typhoeus_options = {:proxy => "http://user:password@example.org/" }
+          typhoeus_options = {:a => 2}
           Faraday.should_receive(:new).with(anything, hash_not_including(:typhoeus_options => typhoeus_options)).and_return(@mock_connection)
           Koala::HTTPService.make_request("anything", {}, "get", :typhoeus_options => typhoeus_options)
         end

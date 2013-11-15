@@ -1,12 +1,10 @@
 require 'spec_helper'
 
 describe Koala::Facebook::GraphCollection do
-  let(:paging){ {:paging => true} }
-
   before(:each) do
     @result = {
       "data" => [1, 2, :three],
-      "paging" => paging
+      "paging" => {:paging => true}
     }
     @api = Koala::Facebook::API.new("123")
     @collection = Koala::Facebook::GraphCollection.new(@result, @api)
@@ -47,9 +45,9 @@ describe Koala::Facebook::GraphCollection do
         "data" => [:second, :page, :data],
         "paging" => {}
       }
-      @base = double("base")
-      @args = {"a" => 1}
-      @page_of_results = double("page of results")
+      @base = stub("base")
+      @args = stub("args")
+      @page_of_results = stub("page of results")
     end
 
     it "should return the previous page of results" do
@@ -78,15 +76,15 @@ describe Koala::Facebook::GraphCollection do
   describe "when parsing page paramters" do
     describe "#parse_page_url" do
       it "should pass the url to the class method" do
-        url = double("url")
+        url = stub("url")
         Koala::Facebook::GraphCollection.should_receive(:parse_page_url).with(url)
         @collection.parse_page_url(url)
       end
 
       it "should return the result of the class method" do
-        parsed_content = double("parsed_content")
+        parsed_content = stub("parsed_content")
         Koala::Facebook::GraphCollection.stub(:parse_page_url).and_return(parsed_content)
-        @collection.parse_page_url(double("url")).should == parsed_content
+        @collection.parse_page_url(stub("url")).should == parsed_content
       end
     end
 
@@ -141,34 +139,6 @@ describe Koala::Facebook::GraphCollection do
       expected = :foo
       Koala::Facebook::GraphCollection.should_receive(:new).with(result, @api).and_return(expected)
       Koala::Facebook::GraphCollection.evaluate(result, @api).should == expected
-    end
-  end
-
-  describe "#next_page" do
-    let(:paging){ {"next" => "http://example.com/?a=2&b=3"} }
-
-    it "should get next page" do
-      @api.should_receive(:get_page).with(["", {"a" => "2", "b" => "3"}])
-      @collection.next_page
-    end
-
-    it "should get next page with extra parameters" do
-      @api.should_receive(:get_page).with(["", {"a" => "2", "b" => "3", "c" => "4"}])
-      @collection.next_page("c" => "4")
-    end
-  end
-
-  describe "#previous_page" do
-    let(:paging){ {"previous" => "http://example.com/?a=2&b=3"} }
-
-    it "should get previous page" do
-      @api.should_receive(:get_page).with(["", {"a" => "2", "b" => "3"}])
-      @collection.previous_page
-    end
-
-    it "should get previous page with extra parameters" do
-      @api.should_receive(:get_page).with(["", {"a" => "2", "b" => "3", "c" => "4"}])
-      @collection.previous_page("c" => "4")
     end
   end
 end

@@ -1,35 +1,3 @@
-v1.8.0rc1
-=========
-
-NOTE: Due to updates to underlying gems, new versions of Koala no longer work
-with Ruby 1.8.x, rbx/jruby in 1.8 mode, and Ruby 1.9.2. Earlier versions will,
-of course, continue to work, since the underlying Facebook API remains the
-same.
-
-If you, tragically, find yourself stuck using these old versions, you may be
-able to get Koala to work by adding proper constraints to your Gemfile. Good
-luck.
-
-New methods:
-* OAuth#generate_client_code lets you get long-lived user tokens for client apps (thanks, binarygeek!)
-
-Updated methods:
-* API#new now takes an optional access_token, which will be used to generate
-  the appsecret_proof parameters ([thanks,
-  nchelluri!](https://github.com/arsduo/koala/pull/323))
-* GraphCollection#next_page and #previous_page can now take additional
-  parameters ([thanks, gacha!](https://github.com/arsduo/koala/pull/330))
-
-Internal Improvements:
-* FIXED: TestUser#delete_all will avoid infinite loops if the user hashes
-  change ([thanks, chunkerchunker!](https://github.com/arsduo/koala/pull/331))
-* CHANGED: Koala now properly uploads Tempfiles like Files, detecting mime type (thanks, ys!)
-* CHANGED: Koala now only passes valid Faraday options, improving compatibility with 0.9 (thanks, lsimoneau!)
-* FIXED: RealtimeUpdates#validate_update now raise a proper error if secret is missing (thanks, theosp!)
-
-Testing improvements:
-* Fixed RSpec deprecations (thanks, sanemat!)
-
 v1.7
 ====
 

@@ -19,7 +19,7 @@ Installation
 
 In Bundler:
 ```ruby
-gem "koala", "~> 1.8.0rc1"
+gem "koala", "~> 1.7.0rc1"
 ```
 
 Otherwise:
@@ -47,6 +47,11 @@ friends = @graph.get_connections("me", "friends")
 # you can even use the new Timeline API
 # see https://developers.facebook.com/docs/beta/opengraph/tutorial/
 @graph.put_connections("me", "namespace:action", :object => object_url)
+
+# you can add your appsecret in order to pass the appsecret_proof parameter, tying your access tokens to your app secret:
+# see https://developers.facebook.com/docs/reference/api/securing-graph-api/
+@graph = Koala::Facebook::API.new(oauth_access_token, app_secret)
+# you'll want to turn on 'Require proof on all calls' in the advanced section of your app's settings when doing this.
 ```
 
 The response of most requests is the JSON data returned from the Facebook servers as a Hash.
@@ -225,7 +230,7 @@ See examples, ask questions
 -----
 Some resources to help you as you play with Koala and the Graph API:
 
-* Complete Koala documentation <a href="https://github.com/arsduo/koala/wiki">on the wiki</a>
+* Complete Koala documentation <a href="http://wiki.github.com/arsduo/koala/">on the wiki</a>
 * The <a href="http://groups.google.com/group/koala-users">Koala users group</a> on Google Groups, the place for your Koala and API questions
 * Facebook's <a href="http://developers.facebook.com/tools/explorer/">Graph API Explorer</a>, where you can play with the Graph API in your browser
 * The Koala-powered <a href="http://oauth.twoalex.com" target="_blank">OAuth Playground</a>, where you can easily generate OAuth access tokens and any other data needed to test out the APIs or OAuth

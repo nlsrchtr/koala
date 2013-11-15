@@ -16,9 +16,12 @@ shared_examples_for "Koala GraphAPI" do
   # GRAPH CALL
   describe "graph_call" do
     it "passes all arguments to the api method" do
-      args = [KoalaTest.user1, {}, "get", {:a => :b}]
-      @api.should_receive(:api).with(*args)
-      @api.graph_call(*args)
+      user = KoalaTest.user1
+      args = {}
+      verb = 'get'
+      opts = {:a => :b}
+      @api.should_receive(:api).with(user, args, verb, opts.merge(:appsecret_proof => true))
+      @api.graph_call(user, args, verb, opts)
     end
 
     it "throws an APIError if the result hash has an error key" do
@@ -140,11 +143,11 @@ shared_examples_for "Koala GraphAPI" do
   describe "#fql_query" do
     it "makes a request to /fql" do
       @api.should_receive(:get_object).with("fql", anything, anything)
-      @api.fql_query double('query string')
+      @api.fql_query stub('query string')
     end
 
     it "passes a query argument" do
-      query = double('query string')
+      query = stub('query string')
       @api.should_receive(:get_object).with(anything, hash_including(:q => query), anything)
       @api.fql_query(query)
     end
@@ -163,7 +166,7 @@ shared_examples_for "Koala GraphAPI" do
     end
 
     it "passes a queries argument" do
-      queries = double('query string')
+      queries = stub('query string')
       queries_json = "some JSON"
       MultiJson.stub(:dump).with(queries).and_return(queries_json)
 
@@ -338,7 +341,7 @@ shared_examples_for "Koala GraphAPI with an access token" do
     end
 
     it "sets options[:video] to true" do
-      source = double("UploadIO")
+      source = stub("UploadIO")
       Koala::UploadableIO.stub(:new).and_return(source)
       source.stub(:requires_base_http_service).and_return(false)
       Koala.should_receive(:make_request).with(anything, anything, anything, hash_including(:video => true)).and_return(Koala::HTTPService::Response.new(200, "[]", {}))

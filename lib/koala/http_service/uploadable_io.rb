@@ -1,5 +1,4 @@
 require "net/http/post/multipart"
-require "tempfile"
 
 module Koala
   module HTTPService
@@ -81,7 +80,7 @@ module Koala
 
       # takes a file object
       def self.file_param?(file)
-        file.kind_of?(File) || file.kind_of?(Tempfile)
+        file.kind_of?(File)
       end
 
       def parse_file_object(file, content_type = nil)
@@ -181,7 +180,7 @@ module Koala
       end
     end
   end
-
+  
   # @private
   # legacy support for when UploadableIO lived directly under Koala
   UploadableIO = HTTPService::UploadableIO
